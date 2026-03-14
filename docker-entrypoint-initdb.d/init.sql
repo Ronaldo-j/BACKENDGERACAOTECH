@@ -1,0 +1,2 @@
+CREATE DATABASE IF NOT EXISTS geracao_tech;
+CREATE DATABASE IF NOT EXISTS geracao_tech_test;

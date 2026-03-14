@@ -1,0 +1,335 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Geracao Tech Backend API",
+    "description": "API backend baseada em Node.js com Express e Sequelize, seguindo os princípios SOLID. Fornece CRUD para usuários, categorias e produtos.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/v1",
+      "description": "API v1"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "paths": {
+    "/user/token": {
+      "post": {
+        "summary": "Gera token de autenticação JWT",
+        "tags": ["Authentication"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string" },
+                  "password": { "type": "string" }
+                },
+                "required": ["email", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Token gerado com sucesso" },
+          "400": { "description": "Credenciais incorretas" }
+        }
+      }
+    },
+    "/user": {
+      "post": {
+        "summary": "Cadastra um novo usuário",
+        "tags": ["Users"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstname": { "type": "string" },
+                  "surname": { "type": "string" },
+                  "email": { "type": "string" },
+                  "password": { "type": "string" },
+                  "confirmPassword": { "type": "string" }
+                },
+                "required": ["firstname", "surname", "email", "password", "confirmPassword"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Usuário criado" },
+          "400": { "description": "Erro na requisição" }
+        }
+      }
+    },
+    "/user/{id}": {
+      "get": {
+        "summary": "Retorna os dados de um usuário",
+        "tags": ["Users"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "Dados do usuário" },
+          "404": { "description": "Não encontrado" }
+        }
+      },
+      "put": {
+        "summary": "Atualiza dados de um usuário",
+        "tags": ["Users"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstname": { "type": "string" },
+                  "surname": { "type": "string" },
+                  "email": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": { "description": "Atualizado com sucesso" },
+          "400": { "description": "Bad Request" },
+          "401": { "description": "Não autorizado" },
+          "404": { "description": "Não encontrado" }
+        }
+      },
+      "delete": {
+        "summary": "Exclui um usuário",
+        "tags": ["Users"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "204": { "description": "Excluído com sucesso" },
+          "401": { "description": "Não autorizado" },
+          "404": { "description": "Não encontrado" }
+        }
+      }
+    },
+    "/category/search": {
+      "get": {
+        "summary": "Busca categorias com filtros",
+        "tags": ["Categories"],
+        "parameters": [
+          { "in": "query", "name": "limit", "schema": { "type": "integer", "default": 12 } },
+          { "in": "query", "name": "page", "schema": { "type": "integer", "default": 1 } },
+          { "in": "query", "name": "fields", "schema": { "type": "string" } },
+          { "in": "query", "name": "use_in_menu", "schema": { "type": "boolean" } }
+        ],
+        "responses": {
+          "200": { "description": "Lista de categorias" },
+          "400": { "description": "Erro na requisição" }
+        }
+      }
+    },
+    "/category": {
+      "post": {
+        "summary": "Cria uma categoria",
+        "tags": ["Categories"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "slug": { "type": "string" },
+                  "use_in_menu": { "type": "boolean" }
+                },
+                "required": ["name", "slug"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Categoria criada" },
+          "400": { "description": "Erro na requisição" },
+          "401": { "description": "Não autorizado" }
+        }
+      }
+    },
+    "/category/{id}": {
+      "get": {
+        "summary": "Obtém uma categoria",
+        "tags": ["Categories"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "Categoria encontrada" },
+          "404": { "description": "Não encontrada" }
+        }
+      },
+      "put": {
+        "summary": "Atualiza uma categoria",
+        "tags": ["Categories"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "slug": { "type": "string" },
+                  "use_in_menu": { "type": "boolean" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": { "description": "Atualizado com sucesso" },
+          "400": { "description": "Bad Request" },
+          "401": { "description": "Não autorizado" },
+          "404": { "description": "Não encontrado" }
+        }
+      },
+      "delete": {
+        "summary": "Exclui uma categoria",
+        "tags": ["Categories"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "204": { "description": "Excluído com sucesso" },
+          "401": { "description": "Não autorizado" },
+          "404": { "description": "Não encontrado" }
+        }
+      }
+    },
+    "/product/search": {
+      "get": {
+        "summary": "Busca produtos com filtros",
+        "tags": ["Products"],
+        "parameters": [
+          { "in": "query", "name": "limit", "schema": { "type": "integer", "default": 12 } },
+          { "in": "query", "name": "page", "schema": { "type": "integer", "default": 1 } },
+          { "in": "query", "name": "fields", "schema": { "type": "string" } },
+          { "in": "query", "name": "match", "schema": { "type": "string" } },
+          { "in": "query", "name": "category_ids", "schema": { "type": "string", "example": "15,24" } },
+          { "in": "query", "name": "price-range", "schema": { "type": "string", "example": "100-200" } }
+        ],
+        "responses": {
+          "200": { "description": "Lista de produtos" },
+          "400": { "description": "Erro na requisição" }
+        }
+      }
+    },
+    "/product": {
+      "post": {
+        "summary": "Cria um produto",
+        "tags": ["Products"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "enabled": { "type": "boolean" },
+                  "name": { "type": "string" },
+                  "slug": { "type": "string" },
+                  "stock": { "type": "integer" },
+                  "description": { "type": "string" },
+                  "price": { "type": "number" },
+                  "price_with_discount": { "type": "number" },
+                  "category_ids": { "type": "array", "items": { "type": "integer" } },
+                  "images": { "type": "array", "items": { "type": "object" } },
+                  "options": { "type": "array", "items": { "type": "object" } }
+                },
+                "required": ["name", "slug", "price", "price_with_discount"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Produto criado" },
+          "400": { "description": "Erro na requisição" },
+          "401": { "description": "Não autorizado" }
+        }
+      }
+    },
+    "/product/{id}": {
+      "get": {
+        "summary": "Obtém um produto",
+        "tags": ["Products"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "Produto encontrado" },
+          "404": { "description": "Não encontrado" }
+        }
+      },
+      "put": {
+        "summary": "Atualiza um produto",
+        "tags": ["Products"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": { "description": "Atualizado com sucesso" },
+          "400": { "description": "Bad Request" },
+          "401": { "description": "Não autorizado" },
+          "404": { "description": "Não encontrado" }
+        }
+      },
+      "delete": {
+        "summary": "Exclui um produto",
+        "tags": ["Products"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "204": { "description": "Excluído com sucesso" },
+          "401": { "description": "Não autorizado" },
+          "404": { "description": "Não encontrado" }
+        }
+      }
+    }
+  }
+}
